@@ -22,6 +22,7 @@ class Farm
      * ]
      */
     public array $allAnimals = [];
+    public array $allProducts = [];
 
     // Возвращает массив всех животных
     public function getAllAnimals(): array
@@ -29,7 +30,26 @@ class Farm
         return $this->allAnimals;
     }
 
+    // Возвращает массив всех продуктов
+    public function getAllProducts(): array
+    {
+        return $this->allProducts;
+    }
+
     // Заменяет массив животных на указаный в аргументе
+    /*
+     * Пример работы:
+     *   $farm->setAllAnimals([
+     *       "Корова" => [
+     *           new Cow(),
+     *           new Cow(),
+     *       ],
+     *       "Курица" => [
+     *           new Hen(),
+     *       ],
+     *   ]);
+     *
+     */
     public function setAllAnimals(array $allAnimals): void
     {
         // Проверка, верно ли указан массив
@@ -72,7 +92,7 @@ class Farm
         foreach ($this->allAnimals as $animals) {
             foreach ($animals as $animal) {
                 if ($animal instanceof Animal) {
-                    $animal->workDay();
+                    $this->allProducts[$animal->productName][] = $animal->workDay();
                 }
             }
         }
@@ -82,12 +102,12 @@ class Farm
     public function showProductsQuantity()
     {
         echo "Количество продуктов:<br>";
-        foreach ($this->allAnimals as $animals) {
+        foreach ($this->allProducts as $key => $products) {
             $sum = 0;
-            foreach ($animals as $animal) {
-                $sum += $animal->productQuantity;
+            foreach ($products as $product) {
+                $sum += $product;
             }
-            echo $animals[0]->productName . ": $sum<br>";
+            echo $key . ": $sum<br>";
         }
     }
 
@@ -132,7 +152,7 @@ abstract class Animal
     public string $nameOfAnimal;
     public string $productName;
 
-    abstract public function workDay();
+    abstract public function workDay(): int;
 }
 
 class Cow extends Animal
@@ -146,9 +166,11 @@ class Cow extends Animal
     }
 
     // Работать один день
-    public function workDay()
+    public function workDay(): int
     {
-        $this->productQuantity += random_int(8, 12);
+        $productsQuantity = random_int(8, 12);
+        $this->productQuantity += $productsQuantity;
+        return $productsQuantity;
     }
 }
 
@@ -163,9 +185,11 @@ class Hen extends Animal
     }
 
     // Работать один день
-    public function workDay()
+    public function workDay(): int
     {
-        $this->productQuantity += random_int(0, 1);
+        $productsQuantity = random_int(0, 1);
+        $this->productQuantity += $productsQuantity;
+        return $productsQuantity;
     }
 }
 
