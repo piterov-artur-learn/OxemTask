@@ -1,8 +1,5 @@
 <?php
 
-// Из-за key который отображается как Deprecated (я не знаю как по другому проверить верность массива :) )
-error_reporting(E_ALL ^ E_DEPRECATED);
-
 class Farm
 {
     /*
