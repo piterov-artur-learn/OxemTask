@@ -40,39 +40,18 @@ class Farm
     /*
      * Пример работы:
      *   $farm->setAllAnimals([
-     *       "Корова" => [
-     *           new Cow(),
-     *           new Cow(),
-     *       ],
-     *       "Курица" => [
-     *           new Hen(),
-     *       ],
+     *       new Cow(),
+     *       new Hen(),
      *   ]);
      *
      */
     public function setAllAnimals(array $allAnimals): void
     {
-        // Проверка, верно ли указан массив
-        foreach ($allAnimals as $animals) {
-            if (!empty(key($animals))) {
-                foreach ($animals as $animal) {
-                    try {
-                        echo key($animal);
-                    } catch (TypeError) {
-                        echo "Неверно передан массив.";
-                        exit();
-                    }
-                }
-            }
-        }
-
         // Проверка, являются ли элементы в массиве животными
         $flag = false;
-        foreach ($allAnimals as $animals) {
-            foreach ($animals as $animal) {
-                if ($animal instanceof Animal) $flag = true;
-                else $flag = false;
-            }
+        foreach ($allAnimals as $animal) {
+            if ($animal instanceof Animal) $flag = true;
+            else $flag = false;
         }
 
         // Замена массива, если массив прошел проверки
@@ -83,17 +62,15 @@ class Farm
     // Добавляет одно животное
     public function addAnimal(Animal $animal)
     {
-        $this->allAnimals[$animal->nameOfAnimal][] = $animal;
+        $this->allAnimals[] = $animal;
     }
 
     // Активирует один день работы на ферме
     public function workOneDay()
     {
-        foreach ($this->allAnimals as $animals) {
-            foreach ($animals as $animal) {
-                if ($animal instanceof Animal) {
-                    $this->allProducts[$animal->productName][] = $animal->workDay();
-                }
+        foreach ($this->allAnimals as $animal) {
+            if ($animal instanceof Animal) {
+                $this->allProducts[$animal->productName][] = $animal->workDay();
             }
         }
     }
@@ -115,12 +92,16 @@ class Farm
     public function showAnimalQuantity()
     {
         echo "Количество животных:<br>";
-        foreach ($this->allAnimals as $animals) {
-            $sum = 0;
-            foreach ($animals as $ignored) {
-                $sum++;
-            }
-            echo $animals[0]->nameOfAnimal . ": $sum<br>";
+        $sumOfAnimals = [];
+        // Для начала инициализируем имнна животных (Можно и без этого, но выдает предупреждения)
+        foreach ($this->allAnimals as $animal) {
+            $sumOfAnimals[$animal->nameOfAnimal] = 0;
+        }
+        foreach ($this->allAnimals as $animal) {
+            $sumOfAnimals[$animal->nameOfAnimal] += 1;
+        }
+        foreach ($sumOfAnimals as $animal => $sum) {
+            echo $animal . ": $sum<br>";
         }
     }
 
@@ -128,8 +109,8 @@ class Farm
     public function showInfoById(string $id)
     {
         $animalToShow = null;
-        foreach ($this->allAnimals as $animals) {
-            foreach ($animals as $animal) {
+        foreach ($this->allAnimals as $animal) {
+            if ($animal instanceof Animal) {
                 if ($animal->id == $id) {
                     $animalToShow = $animal;
                 }
@@ -234,4 +215,4 @@ for ($i = 0; $i <= 7; $i++) {
 $farm->showProductsQuantity();
 
 // Дополнительно: получаем информацию о животном по его ID
-$farm->showInfoById($farm->allAnimals["Корова"][0]->id);
+$farm->showInfoById($farm->allAnimals[0]->id);
