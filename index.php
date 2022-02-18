@@ -30,21 +30,10 @@ class Farm
     }
 
     // Добавляет одно или нескольких животных
-    // Если $deletePreviousArray = true, то заменяет массив животных на указаный в аргументе
-    public function addAnimals(bool $deletePreviousArray = false, Animal ...$animals)
+    public function addAnimals(Animal ...$animals)
     {
-        // Проверка, являются ли элементы в массиве животными
-        $flag = false;
         foreach ($animals as $animal) {
-            if (!($animal instanceof Animal)) {
-                $flag = false;
-                break;
-            } else $flag = true;
-        }
-
-        if ($flag && $deletePreviousArray) $this->allAnimals = $animals;
-        if ($flag && !$deletePreviousArray) {
-            foreach ($animals as $animal) {
+            if ($animal instanceof Animal) {
                 $this->allAnimals[$animal->id] = $animal;
             }
         }
@@ -156,12 +145,12 @@ $farm = new Farm();
 
 // Добавляем 10 коров
 for ($i = 0; $i < 10; $i++) {
-    $farm->addAnimals(false, new Cow());
+    $farm->addAnimals(new Cow());
 }
 
 // Добавляем 20 кур
 for ($i = 0; $i < 20; $i++) {
-    $farm->addAnimals(false, new Hen());
+    $farm->addAnimals(new Hen());
 }
 
 // Проверяем количество каждого типа животных
@@ -177,11 +166,11 @@ $farm->showProductsQuantity();
 
 // Добавляем ещё 5 кур
 for ($i = 0; $i < 5; $i++) {
-    $farm->addAnimals(false, new Hen());
+    $farm->addAnimals(new Hen());
 }
 
 // Добавляем одну корову
-$farm->addAnimals(false, new Cow());
+$farm->addAnimals(new Cow());
 
 // Работаем ещё 7 дней
 for ($i = 0; $i <= 7; $i++) {
