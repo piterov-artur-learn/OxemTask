@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_ALL ^ E_WARNING);
+
 class Farm
 {
     /*
@@ -27,42 +29,32 @@ class Farm
         return $this->allProducts;
     }
 
-    // Заменяет массив животных на указаный в аргументе
-    /*
-     * Пример работы:
-     *   $farm->setAllAnimals([
-     *       new Cow(),
-     *       new Hen(),
-     *   ]);
-     *
-     */
-    public function setAllAnimals(array $allAnimals): void
+    // Добавляет одно или нескольких животных
+    // Если $deletePreviousArray = true, то заменяет массив животных на указаный в аргументе
+    public function addAnimals(bool $deletePreviousArray = false, Animal ...$animals)
     {
         // Проверка, являются ли элементы в массиве животными
         $flag = false;
-        foreach ($allAnimals as $animal) {
-            if ($animal instanceof Animal) $flag = true;
-            else $flag = false;
+        foreach ($animals as $animal) {
+            if (!($animal instanceof Animal)) {
+                $flag = false;
+                break;
+            } else $flag = true;
         }
 
-        // Замена массива, если массив прошел проверки
-        if ($flag) $this->allAnimals = $allAnimals;
-        else echo "Объекты в массиве не являются животными.";
-    }
-
-    // Добавляет одно животное
-    public function addAnimal(Animal $animal)
-    {
-        $this->allAnimals[] = $animal;
+        if ($flag && $deletePreviousArray) $this->allAnimals = $animals;
+        if ($flag && !$deletePreviousArray) {
+            foreach ($animals as $animal) {
+                $this->allAnimals[$animal->id] = $animal;
+            }
+        }
     }
 
     // Активирует один день работы на ферме
     public function workOneDay()
     {
         foreach ($this->allAnimals as $animal) {
-            if ($animal instanceof Animal) {
-                $this->allProducts[$animal->productName][] = $animal->workDay();
-            }
+            $this->allProducts[$animal->productName][] = $animal->workDay();
         }
     }
 
@@ -84,10 +76,6 @@ class Farm
     {
         echo "Количество животных:<br>";
         $sumOfAnimals = [];
-        // Для начала инициализируем имена животных (Можно и без этого, но выдает предупреждения)
-        foreach ($this->allAnimals as $animal) {
-            $sumOfAnimals[$animal->nameOfAnimal] = 0;
-        }
         foreach ($this->allAnimals as $animal) {
             $sumOfAnimals[$animal->nameOfAnimal] += 1;
         }
@@ -100,18 +88,16 @@ class Farm
     public function showInfoById(string $id)
     {
         $animalToShow = null;
-        foreach ($this->allAnimals as $animal) {
-            if ($animal instanceof Animal) {
-                if ($animal->id == $id) {
-                    $animalToShow = $animal;
-                }
+        foreach ($this->allAnimals as $key => $animal) {
+            if ($key == $id) {
+                $animalToShow = $animal;
             }
         }
         if ($animalToShow instanceof Animal) {
             echo "Информация о животном по ID $animalToShow->id<br>"
                 . "Животное: $animalToShow->nameOfAnimal<br>"
                 . "Продукт: $animalToShow->productName<br>"
-                . "Готовых продуктов: $animalToShow->productQuantity<br>";
+                . "Готовых продуктов за сегодня: $animalToShow->productQuantity<br>";
         }
     }
 }
@@ -141,7 +127,7 @@ class Cow extends Animal
     public function workDay(): int
     {
         $productsQuantity = random_int(8, 12);
-        $this->productQuantity += $productsQuantity;
+        $this->productQuantity = $productsQuantity;
         return $productsQuantity;
     }
 }
@@ -160,7 +146,7 @@ class Hen extends Animal
     public function workDay(): int
     {
         $productsQuantity = random_int(0, 1);
-        $this->productQuantity += $productsQuantity;
+        $this->productQuantity = $productsQuantity;
         return $productsQuantity;
     }
 }
@@ -170,12 +156,12 @@ $farm = new Farm();
 
 // Добавляем 10 коров
 for ($i = 0; $i < 10; $i++) {
-    $farm->addAnimal(new Cow());
+    $farm->addAnimals(false, new Cow());
 }
 
 // Добавляем 20 кур
 for ($i = 0; $i < 20; $i++) {
-    $farm->addAnimal(new Hen());
+    $farm->addAnimals(false, new Hen());
 }
 
 // Проверяем количество каждого типа животных
@@ -191,11 +177,11 @@ $farm->showProductsQuantity();
 
 // Добавляем ещё 5 кур
 for ($i = 0; $i < 5; $i++) {
-    $farm->addAnimal(new Hen());
+    $farm->addAnimals(false, new Hen());
 }
 
 // Добавляем одну корову
-$farm->addAnimal(new Cow());
+$farm->addAnimals(false, new Cow());
 
 // Работаем ещё 7 дней
 for ($i = 0; $i <= 7; $i++) {
@@ -206,4 +192,9 @@ for ($i = 0; $i <= 7; $i++) {
 $farm->showProductsQuantity();
 
 // Дополнительно: получаем информацию о животном по его ID
-$farm->showInfoById($farm->allAnimals[0]->id);
+$animalsIds = []; // Массив, который будет содержать ID всех животных
+foreach ($farm->allAnimals as $key => $animal) { // Перебираем всех животных и добавляем их ID в массив
+    $animalsIds[] = $key;
+}
+
+$farm->showInfoById($animalsIds[3]);
